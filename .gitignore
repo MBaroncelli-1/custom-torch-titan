@@ -1,0 +1,8 @@
+titan_venv/
+outputs/
+outputs_LLama3-8B/
+*.out
+*.err
+multinode_trainer_llama_128nn.sh
+multinode_trainer_llama_256nn.sh
+multinode_trainer_llama.sh

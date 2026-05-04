@@ -1,0 +1,101 @@
+[job]
+dump_folder = "./outputs"
+description = "QWEN_32B"
+print_config = true
+
+[profiling]
+enable_profiling = false
+save_traces_folder = "profile_traces"
+profile_freq = 10
+profiler_active = 1
+profiler_warmup = 3
+enable_memory_snapshot = false
+save_memory_snapshot_folder = "memory_snapshot"
+
+[metrics]
+log_freq = 1
+enable_tensorboard = true
+disable_color_printing = true
+save_tb_folder = "tb"
+save_for_all_ranks = false
+enable_wandb = false
+
+[model]
+name = "qwen3"
+flavor = "32B"
+hf_assets_path = "/leonardo_work/PHD_baroncel/torchtitan-0.2.2/assets/hf/gemma-3-27b-it"
+
+
+[optimizer]
+name = "AdamW"
+lr = 0.0001
+beta1 = 0.9
+beta2 = 0.95
+eps = 1e-08
+weight_decay = 0.1
+implementation = "fused"
+early_step_in_backward = false
+
+
+[lr_scheduler]
+warmup_steps = 200
+min_lr_factor = 1e-05
+decay_type = "cosine"
+
+[training]
+dataset = "fineweb"
+dataset_path = "/leonardo_scratch/large/userinternal/mbaronce/Large-Scale-Training-Megatron-nuovo/megatron-lm/datasets/FineWeb/fineweb-10BT.jsonl"
+local_batch_size = 1
+global_batch_size = 512
+seq_len = 4096
+max_norm = 1.0
+steps = 10
+enable_cpu_offload = false
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+gc_freq = 50
+gc_debug = false
+
+[parallelism]
+data_parallel_replicate_degree = 1
+data_parallel_shard_degree = 16
+fsdp_reshard_after_forward = "default"
+tensor_parallel_degree = 1
+disable_loss_parallel = false
+enable_async_tensor_parallel = false
+pipeline_parallel_degree = 1
+pipeline_parallel_first_stage_less_layers = 1
+pipeline_parallel_last_stage_less_layers = 1
+pipeline_parallel_schedule = "1F1B"
+pipeline_parallel_schedule_csv = ""
+pipeline_parallel_microbatch_size = 1
+pipeline_parallel_expert_parallel_overlap = true
+context_parallel_degree = 1
+context_parallel_rotate_method = "allgather"
+expert_parallel_degree = 1
+expert_tensor_parallel_degree = 1
+expert_parallel_comm_backend = "standard"
+
+[activation_checkpoint]
+mode = "none"
+selective_ac_option = "op"
+
+[compile]
+enable = true
+components = [
+    "model",
+    "loss",
+]
+
+[quantize.linear.float8]
+enable_fsdp_float8_all_gather = false
+precompute_float8_dynamic_scale_for_fsdp = false
+filter_fqns = [
+    "output",
+]
+
+[quantize.grouped_mm.float8]
+fqns = []
+
+

@@ -1,0 +1,86 @@
+[job]
+dump_folder = "./outputs_LLama3-8B"
+description = "Llama 3 8B training"
+print_config = true
+
+[profiling]
+enable_profiling = false
+save_traces_folder = "profile_trace"
+profile_freq = 10
+profiler_active = 0
+profiler_warmup = 3
+enable_memory_snapshot = false
+save_memory_snapshot_folder = "memory_snapshot"
+
+[metrics]
+log_freq = 1
+disable_color_printing = false
+enable_tensorboard = false
+save_tb_folder = "tb"
+enable_wandb = false
+
+[model]
+name = "llama3"
+flavor = "8B"
+hf_assets_path = "/leonardo_work/PHD_baroncel/torchtitan-0.2.2/assets/hf/Llama-3.1-8B"
+# converters = ["float8"]
+
+[optimizer]
+name = "AdamW"
+lr = 1e-4
+eps = 1e-8
+
+[lr_scheduler]
+warmup_steps = 200  # lr scheduler warm up
+decay_ratio = 0.1      
+decay_type = "cosine"
+min_lr_factor = 0.1    
+
+[training]
+dataset = "fineweb"
+dataset_path = "/leonardo_scratch/large/userinternal/mbaronce/Large-Scale-Training-Megatron-nuovo/megatron-lm/datasets/FineWeb/fineweb-10BT.jsonl"
+local_batch_size = 1
+global_batch_size = 16364
+seq_len = 4096
+max_norm = 1.0
+steps = 10
+enable_cpu_offload = false
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+gc_freq = 50
+gc_debug = false
+
+[parallelism]
+data_parallel_replicate_degree = 1
+data_parallel_shard_degree = 256
+tensor_parallel_degree = 1
+pipeline_parallel_degree = 1
+context_parallel_degree = 1
+
+[checkpoint]
+enable = false
+folder = "checkpoint"
+interval = 500
+last_save_model_only = true
+export_dtype = "float32"
+async_mode = "disabled" # ["disabled", "async", "async_with_pinned_mem"]
+
+[compile]
+enable=false
+components = ["model", "loss"]
+
+[activation_checkpoint]
+mode = "none"  # ["none", "selective", "full"]
+selective_ac_option = "op"  # "int" = ac every positive int layer or 'op', ac based on ops policy
+
+[quantize.linear.float8]
+enable_fsdp_float8_all_gather = false
+precompute_float8_dynamic_scale_for_fsdp = false
+filter_fqns = ["output"]
+
+[validation]
+enable = false
+dataset = "c4_validation"
+freq = 500
+steps = 1200 # Recommend value for c4_validation with world-size=8 and seq_len=8192
